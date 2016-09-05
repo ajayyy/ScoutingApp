@@ -1,21 +1,29 @@
 package ca.lakeeffect.scoutingapp;
 
-import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
@@ -28,7 +36,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     Button submit;
 
+    TextView timer;
+    TextView robotNumText;//robotnum and round
+
     int robotNum = 0000;
+    int round = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,10 +55,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         submit = (Button) findViewById(R.id.submitButton);
 
+        timer = (TextView) findViewById(R.id.timer);
+        robotNumText = (TextView) findViewById(R.id.robotNum);
+
+        robotNumText.setText("Round: " + round + "  Robot: " + robotNum);
+
         //add onClickListeners
 
         submit.setOnClickListener(this);
 
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            }
+        }
     }
 
     @Override
@@ -57,16 +79,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void saveData(){
+
         File sdCard = Environment.getExternalStorageDirectory();
-        File dir = new File (sdCard.getAbsolutePath() + "/ScoutingData/");
+//        File dir = new File (sdCard.getPath() + "/ScoutingData/");
 
-        File file = new File(dir, robotNum + ".txt");
+        File file = new File(sdCard.getPath() + "/ScoutingData/" + robotNum + ".txt");
 
-        FileOutputStream f = null;
         try {
-            f = new FileOutputStream(file);
+            file.getParentFile().mkdirs();
+            if(!file.exists()){
+                file.createNewFile();
+            }
+
+            FileOutputStream f = new FileOutputStream(file);
 
             OutputStreamWriter myOutWriter = new OutputStreamWriter(f);
+
+            DateFormat dateFormat = new SimpleDateFormat("dd HH:mm:ss");
+            Date date = new Date();
+
+            myOutWriter.append("start " + round + " " + dateFormat.format(date) + "\n");
 
             for(Counter counter: counters){
                 myOutWriter.append("counter " + getResources().getResourceEntryName(counter.getId()) + " " + counter.count + "\n");
@@ -89,6 +121,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 myOutWriter.append("seekbar " + getResources().getResourceEntryName(seekbar.getId()) + " " + seekbar.getProgress() + "\n");
             }
 
+
+            myOutWriter.append("end");
             myOutWriter.close();
 
             f.close();
@@ -96,5 +130,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             e.printStackTrace();
         }
 
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case 1: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    return;
+                } else {
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+
+                    Toast.makeText(MainActivity.this, "This is needed to run this", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+        }
     }
 }
