@@ -8,10 +8,15 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Counter extends LinearLayout implements View.OnClickListener{
     TextView counterText;
 
     int count;
+
+    List<Long> times = new ArrayList<>();
 
     Button plusOneButton;
     Button minusOneButton;
@@ -31,6 +36,7 @@ public class Counter extends LinearLayout implements View.OnClickListener{
     }
 
     public void onClick(View view){
+        times.add(new Long(System.nanoTime() - MainActivity.start));
         if(view == plusOneButton){
             count++;
         }else{

@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     int robotNum = 0000;
     int round = 1;
 
+    static long start;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,10 +67,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         submit.setOnClickListener(this);
 
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
             }
         }
+
+        start = System.nanoTime();
     }
 
     @Override
@@ -91,39 +95,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 file.createNewFile();
             }
 
-            FileOutputStream f = new FileOutputStream(file);
+            FileOutputStream f = new FileOutputStream(file, true);
 
-            OutputStreamWriter myOutWriter = new OutputStreamWriter(f);
+            OutputStreamWriter out = new OutputStreamWriter(f);
 
-            DateFormat dateFormat = new SimpleDateFormat("dd HH:mm:ss");
+            DateFormat dateFormat = new SimpleDateFormat("dd HH mm ss");
             Date date = new Date();
 
-            myOutWriter.append("start " + round + " " + dateFormat.format(date) + "\n");
+            out.append("\n" + "start " + round + " " + dateFormat.format(date) + "\n");
 
             for(Counter counter: counters){
-                myOutWriter.append("counter " + getResources().getResourceEntryName(counter.getId()) + " " + counter.count + "\n");
+                out.append("counter " + getResources().getResourceEntryName(counter.getId()) + " " + counter.count + " " + counter.times.toString() + "\n");
             }
 
             for(CheckBox checkbox: checkboxes){
-                myOutWriter.append("checkbox " + getResources().getResourceEntryName(checkbox.getId()) + " " + checkbox.isChecked() + "\n");
+                out.append("checkbox " + getResources().getResourceEntryName(checkbox.getId()) + " " + checkbox.isChecked() + "\n");
             }
 
             for(RadioGroup radiogroup: radiogroups){
-                myOutWriter.append("radiogroup " + getResources().getResourceEntryName(radiogroup.getId()) + " " + radiogroup.indexOfChild(findViewById(radiogroup.getCheckedRadioButtonId())) + "\n");
+                out.append("radiogroup " + getResources().getResourceEntryName(radiogroup.getId()) + " " + radiogroup.indexOfChild(findViewById(radiogroup.getCheckedRadioButtonId())) + "\n");
             }
 
 //            TODO: Write button data, might not be needed
 //            for(Button button: buttons){
-//                myOutWriter.append("button " + getResources().getResourceEntryName(button.getId()) + " " + counter.count + "\n");
+//                out.append("button " + getResources().getResourceEntryName(button.getId()) + " " + counter.count + "\n");
 //            }
 
             for(SeekBar seekbar: seekbars){
-                myOutWriter.append("seekbar " + getResources().getResourceEntryName(seekbar.getId()) + " " + seekbar.getProgress() + "\n");
+                out.append("seekbar " + getResources().getResourceEntryName(seekbar.getId()) + " " + seekbar.getProgress() + "\n");
             }
 
 
-            myOutWriter.append("end");
-            myOutWriter.close();
+            out.append("end");
+            out.close();
 
             f.close();
         } catch (IOException e) {
@@ -140,9 +144,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     return;
                 } else {
-                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+                    ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
 
-                    Toast.makeText(MainActivity.this, "This is needed to run this", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "The app has to save items to the external storage", Toast.LENGTH_SHORT).show();
                 }
                 return;
             }
