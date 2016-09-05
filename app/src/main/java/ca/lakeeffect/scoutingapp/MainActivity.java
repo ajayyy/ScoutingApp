@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.NumberPicker;
 import android.widget.RadioGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -61,6 +62,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         robotNumText = (TextView) findViewById(R.id.robotNum);
 
         robotNumText.setText("Round: " + round + "  Robot: " + robotNum);
+
+//        NumberPicker np = (NumberPicker) findViewById(R.id.numberPicker);
+//
+//        np.setMinValue(0);
+//        np.setMaxValue(20);    //maybe switch from counters
+//        np.setWrapSelectorWheel(false);
+//        np.setValue(0);
 
         //add onClickListeners
 
