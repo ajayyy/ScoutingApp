@@ -79,4 +79,25 @@
         android:layout_above="@+id/submitButton"
         android:layout_centerHorizontal="true" />
 
+    <RadioGroup
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignLeft="@+id/scaleCheckBox"
+        android:layout_alignStart="@+id/scaleCheckBox"
+        android:layout_below="@+id/goalsCounter">
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New RadioButton"
+            android:id="@+id/radioButton"
+            android:layout_gravity="center_horizontal" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="New RadioButton"
+            android:id="@+id/radioButton2" />
+    </RadioGroup>
+
 </RelativeLayout>
